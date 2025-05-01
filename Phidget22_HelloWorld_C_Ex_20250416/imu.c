@@ -10,15 +10,11 @@ static void CCONV onAngularRateUpdate(PhidgetGyroscopeHandle ch, void * ctx, con
 }
 
 static void CCONV onSpatialData(PhidgetSpatialHandle ch, void * ctx, const double acceleration[3], const double angularRate[3], const double magneticField[3], double timestamp) {
-	double heading_degree;
 	printf("Acceleration: \t%lf  |  %lf  |  %lf\n", acceleration[0], acceleration[1], acceleration[2]);
 	printf("AngularRate: \t%lf  |  %lf  |  %lf\n", angularRate[0], angularRate[1], angularRate[2]);
 	printf("MagneticField: \t%lf  |  %lf  |  %lf\n", magneticField[0], magneticField[1], magneticField[2]);
 	printf("Timestamp: %lf\n", timestamp);
 	printf("----------\n");
-
-	heading_degree = ch->eulerAngles.heading;
-	printf('Heand: \t%lf', heading_degree);
 }
 
 int main() {
@@ -33,6 +29,8 @@ int main() {
 
 	Phidget_openWaitForAttachment((PhidgetHandle)gyroscope0, 5000);
 	Phidget_openWaitForAttachment((PhidgetHandle)spatial0, 5000);
+
+	PhidgetSpatial_zeroGyro(spatial0);
 
 	//Wait until Enter has been pressed before exiting
 	getchar();
