@@ -115,7 +115,6 @@ void zeroGyro(PhidgetSpatialHandle ch) {
     }
 }
 
-
 //-------------------------------------------------------------------------------------------
 // AHRS Algorithm Implementation (Madgwick)
 // (Copied from ahrs_madgwick_c immersive, ensure it's complete and correct)
@@ -126,7 +125,7 @@ void MadgwickAHRSupdate(float gx, float gy, float gz, float ax, float ay, float 
 	float qDot1, qDot2, qDot3, qDot4;
 	float hx, hy;
 	float _2q0mx, _2q0my, _2q0mz, _2q1mx, _2q1my, _2q1mz, _2q2mx, _2q2my, _2q2mz, _2q3mx, _2q3my, _2q3mz;
-	float _2q0, _2q1, _2q2, _2q3, _2q0q2, _2q2q3, _2q0q3; // Added _2q0q3 declaration
+	float _2q0, _2q1, _2q2, _2q3, _2q0q1, _2q0q2, _2q2q3, _2q0q3; // Added _2q0q1 declaration
 	float q0q0, q0q1, q0q2, q0q3, q1q1, q1q2, q1q3, q2q2, q2q3, q3q3;
     float _4bx = 0.0f, _4bz = 0.0f; // Initialize to avoid potential uninitialized use warnings
 
@@ -175,9 +174,10 @@ void MadgwickAHRSupdate(float gx, float gy, float gz, float ax, float ay, float 
         _2q1 = 2.0f * q1;
         _2q2 = 2.0f * q2;
         _2q3 = 2.0f * q3;
+        _2q0q1 = 2.0f * q0 * q1; // Calculate _2q0q1
         _2q0q2 = 2.0f * q0 * q2;
         _2q2q3 = 2.0f * q2 * q3;
-        _2q0q3 = 2.0f * q0 * q3; // Calculate _2q0q3
+        _2q0q3 = 2.0f * q0 * q3;
         q0q0 = q0 * q0;
         q0q1 = q0 * q1;
         q0q2 = q0 * q2;
@@ -191,7 +191,7 @@ void MadgwickAHRSupdate(float gx, float gy, float gz, float ax, float ay, float 
 
 		// Reference direction of Earth's magnetic field
         hx = mx * (q0q0 + q1q1 - q2q2 - q3q3) + my * (2.0f * q1q2 - _2q0q3) + mz * (2.0f * q1q3 + _2q0q2);
-        hy = mx * (2.0f * q1q2 + _2q0q3) + my * (q0q0 - q1q1 + q2q2 - q3q3) + mz * (2.0f * q2q3 - _2q0q2); // Corrected typo in original source (_2q0q1 -> _2q0q2)
+        hy = mx * (2.0f * q1q2 + _2q0q3) + my * (q0q0 - q1q1 + q2q2 - q3q3) + mz * (2.0f * q2q3 - _2q0q2);
         float bz = mx * (2.0f * q1q3 - _2q0q2) + my * (2.0f * q2q3 + _2q0q1) + mz * (q0q0 - q1q1 - q2q2 + q3q3); // Renamed from _2bz to avoid conflict
 
 		// Estimated direction of magnetic field
