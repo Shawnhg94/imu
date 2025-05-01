@@ -45,7 +45,7 @@ static void CCONV onSpatialData(PhidgetSpatialHandle ch, void * ctx, const doubl
 
 	dt_sec = (timestamp - ts) / 1000.0;
 	heading = heading + angularRate[2] * dt_sec;
-	heading = heading * 180 / 3.14;
+	//heading = heading * 180 / 3.14;
 	heading = normalize_angle(heading);
 	printf("Heading: %lf\n", heading);
 	printf("----------\n");
@@ -58,17 +58,17 @@ void zeroGyro(PhidgetSpatialHandle ch) {
 }
 
 int main() {
-	PhidgetGyroscopeHandle gyroscope0;
+	//PhidgetGyroscopeHandle gyroscope0;
 	PhidgetSpatialHandle spatial0;
 	char ch = 0;
 
-	PhidgetGyroscope_create(&gyroscope0);
+	//PhidgetGyroscope_create(&gyroscope0);
 	PhidgetSpatial_create(&spatial0);
 
-	PhidgetGyroscope_setOnAngularRateUpdateHandler(gyroscope0, onAngularRateUpdate, NULL);
+	//PhidgetGyroscope_setOnAngularRateUpdateHandler(gyroscope0, onAngularRateUpdate, NULL);
 	PhidgetSpatial_setOnSpatialDataHandler(spatial0, onSpatialData, NULL);
 
-	Phidget_openWaitForAttachment((PhidgetHandle)gyroscope0, 5000);
+	//Phidget_openWaitForAttachment((PhidgetHandle)gyroscope0, 5000);
 	Phidget_openWaitForAttachment((PhidgetHandle)spatial0, 5000);
 
 	PhidgetSpatial_zeroGyro(spatial0);
@@ -82,10 +82,10 @@ int main() {
 		
 	}
 
-	Phidget_close((PhidgetHandle)gyroscope0);
+	//Phidget_close((PhidgetHandle)gyroscope0);
 	Phidget_close((PhidgetHandle)spatial0);
 
-	PhidgetGyroscope_delete(&gyroscope0);
+	//PhidgetGyroscope_delete(&gyroscope0);
 	PhidgetSpatial_delete(&spatial0);
 }
 
