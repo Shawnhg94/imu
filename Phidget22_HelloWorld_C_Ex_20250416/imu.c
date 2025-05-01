@@ -74,7 +74,7 @@ int main() {
 			break;
 		}
 		else if(ch == 'g') {
-			PhidgetSpatial_getEulerAngles(ch, &angles);
+			PhidgetSpatial_getEulerAngles(spatial0, &angles);
 			printf('Heading %lf\n', angles.heading);
 		}
 		else {
