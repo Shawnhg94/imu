@@ -17,7 +17,7 @@ static void CCONV onSpatialData(PhidgetSpatialHandle ch, void * ctx, const doubl
 	printf("Timestamp: %lf\n", timestamp);
 	printf("----------\n");
 
-	heading_degree = ch->eulerAngles.heading;
+	heading_degree = ch.eulerAngles.heading;
 	printf('Heand: \t%lf', heading_degree);
 }
 
