@@ -31,10 +31,10 @@ float normalize_angle(float angle_degrees) {
 static void CCONV onSpatialData(PhidgetSpatialHandle ch, void * ctx, const double acceleration[3], const double angularRate[3], const double magneticField[3], double timestamp) {
 
     // Raw data (optional)
-    printf(" Accel(raw): %.3f | %.3f | %.3f\n", acceleration[0], acceleration[1], acceleration[2]);
-    printf(" Gyro(raw):  %.3f | %.3f | %.3f\n", angularRate[0], angularRate[1], angularRate[2]);
-    printf(" Mag(raw):   %.3f | %.3f | %.3f\n", magneticField[0], magneticField[1], magneticField[2]);
-    printf("----------\n");
+    // printf(" Accel(raw): %.3f | %.3f | %.3f\n", acceleration[0], acceleration[1], acceleration[2]);
+    // printf(" Gyro(raw):  %.3f | %.3f | %.3f\n", angularRate[0], angularRate[1], angularRate[2]);
+    // printf(" Mag(raw):   %.3f | %.3f | %.3f\n", magneticField[0], magneticField[1], magneticField[2]);
+    // printf("----------\n");
 }
 
 //-------------------------------------------------------------------------------------------
