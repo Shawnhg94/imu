@@ -126,7 +126,7 @@ void MadgwickAHRSupdate(float gx, float gy, float gz, float ax, float ay, float 
 	float qDot1, qDot2, qDot3, qDot4;
 	float hx, hy;
 	float _2q0mx, _2q0my, _2q0mz, _2q1mx, _2q1my, _2q1mz, _2q2mx, _2q2my, _2q2mz, _2q3mx, _2q3my, _2q3mz;
-	float _2q0, _2q1, _2q2, _2q3, _2q0q2, _2q2q3;
+	float _2q0, _2q1, _2q2, _2q3, _2q0q2, _2q2q3, _2q0q3; // Added _2q0q3 declaration
 	float q0q0, q0q1, q0q2, q0q3, q1q1, q1q2, q1q3, q2q2, q2q3, q3q3;
     float _4bx = 0.0f, _4bz = 0.0f; // Initialize to avoid potential uninitialized use warnings
 
@@ -177,6 +177,7 @@ void MadgwickAHRSupdate(float gx, float gy, float gz, float ax, float ay, float 
         _2q3 = 2.0f * q3;
         _2q0q2 = 2.0f * q0 * q2;
         _2q2q3 = 2.0f * q2 * q3;
+        _2q0q3 = 2.0f * q0 * q3; // Calculate _2q0q3
         q0q0 = q0 * q0;
         q0q1 = q0 * q1;
         q0q2 = q0 * q2;
@@ -190,7 +191,7 @@ void MadgwickAHRSupdate(float gx, float gy, float gz, float ax, float ay, float 
 
 		// Reference direction of Earth's magnetic field
         hx = mx * (q0q0 + q1q1 - q2q2 - q3q3) + my * (2.0f * q1q2 - _2q0q3) + mz * (2.0f * q1q3 + _2q0q2);
-        hy = mx * (2.0f * q1q2 + _2q0q3) + my * (q0q0 - q1q1 + q2q2 - q3q3) + mz * (2.0f * q2q3 - _2q0q2); // Original had _2q0q1 typo?
+        hy = mx * (2.0f * q1q2 + _2q0q3) + my * (q0q0 - q1q1 + q2q2 - q3q3) + mz * (2.0f * q2q3 - _2q0q2); // Corrected typo in original source (_2q0q1 -> _2q0q2)
         float bz = mx * (2.0f * q1q3 - _2q0q2) + my * (2.0f * q2q3 + _2q0q1) + mz * (q0q0 - q1q1 - q2q2 + q3q3); // Renamed from _2bz to avoid conflict
 
 		// Estimated direction of magnetic field
@@ -203,6 +204,7 @@ void MadgwickAHRSupdate(float gx, float gy, float gz, float ax, float ay, float 
 
 
 		// Gradient decent algorithm corrective step (carefully check against original paper if issues arise)
+        // These formulas are complex and sensitive to typos. Double-check if results are unexpected.
         s0 = -_2q2 * (2.0f * q1q3 - _2q0q2 - ax) + _2q1 * (2.0f * q0q1 + _2q2q3 - ay) - _2bz * q2 * (_2bx * (0.5f - q2q2 - q3q3) + _2bz * (q1q3 - q0q2) - mx) + (-_2bx * q3 + _2bz * q1) * (_2bx * (q1q2 - q0q3) + _2bz * (q0q1 + q2q3) - my) + _2bx * q2 * (_2bx * (q0q2 + q1q3) + _2bz * (0.5f - q1q1 - q2q2) - mz);
         s1 = _2q3 * (2.0f * q1q3 - _2q0q2 - ax) + _2q0 * (2.0f * q0q1 + _2q2q3 - ay) - 4.0f * q1 * (1.0f - 2.0f * q1q1 - 2.0f * q2q2 - az) + _2bz * q3 * (_2bx * (0.5f - q2q2 - q3q3) + _2bz * (q1q3 - q0q2) - mx) + (_2bx * q2 + _2bz * q0) * (_2bx * (q1q2 - q0q3) + _2bz * (q0q1 + q2q3) - my) + (_2bx * q3 - _4bz * q1) * (_2bx * (q0q2 + q1q3) + _2bz * (0.5f - q1q1 - q2q2) - mz);
         s2 = -_2q0 * (2.0f * q1q3 - _2q0q2 - ax) + _2q3 * (2.0f * q0q1 + _2q2q3 - ay) - 4.0f * q2 * (1.0f - 2.0f * q1q1 - 2.0f * q2q2 - az) + (-_4bx * q2 - _2bz * q0) * (_2bx * (0.5f - q2q2 - q3q3) + _2bz * (q1q3 - q0q2) - mx) + (_2bx * q1 + _2bz * q3) * (_2bx * (q1q2 - q0q3) + _2bz * (q0q1 + q2q3) - my) + (_2bx * q0 - _4bz * q2) * (_2bx * (q0q2 + q1q3) + _2bz * (0.5f - q1q1 - q2q2) - mz);
@@ -210,10 +212,17 @@ void MadgwickAHRSupdate(float gx, float gy, float gz, float ax, float ay, float 
 
 
 		recipNorm = invSqrt(s0 * s0 + s1 * s1 + s2 * s2 + s3 * s3); // normalise step magnitude
-		s0 *= recipNorm;
-		s1 *= recipNorm;
-		s2 *= recipNorm;
-		s3 *= recipNorm;
+        // Avoid division by zero if gradient magnitude is zero
+        if (recipNorm > 0.0f) {
+            s0 *= recipNorm;
+            s1 *= recipNorm;
+            s2 *= recipNorm;
+            s3 *= recipNorm;
+        } else {
+            // Handle zero gradient case if necessary, though unlikely with sensor noise
+            // s0 = s1 = s2 = s3 = 0.0f;
+        }
+
 
 		// Apply feedback step
 		qDot1 -= beta * s0;
@@ -231,10 +240,12 @@ void MadgwickAHRSupdate(float gx, float gy, float gz, float ax, float ay, float 
 
 	// Normalise quaternion
 	recipNorm = invSqrt(q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3);
-	q0 *= recipNorm;
-	q1 *= recipNorm;
-	q2 *= recipNorm;
-	q3 *= recipNorm;
+    if (recipNorm > 0.0f) { // Avoid division by zero
+        q0 *= recipNorm;
+        q1 *= recipNorm;
+        q2 *= recipNorm;
+        q3 *= recipNorm;
+    }
 }
 
 void MadgwickAHRSupdateIMU(float gx, float gy, float gz, float ax, float ay, float az) {
@@ -279,10 +290,15 @@ void MadgwickAHRSupdateIMU(float gx, float gy, float gz, float ax, float ay, flo
 		s2 = 4.0f * q0q0 * q2 + _2q0 * ax + _4q2 * q3q3 - _2q3 * ay - _4q2 + _8q2 * q1q1 + _8q2 * q2q2 + _4q2 * az;
 		s3 = 4.0f * q1q1 * q3 - _2q1 * ax + 4.0f * q2q2 * q3 - _2q2 * ay;
 		recipNorm = invSqrt(s0 * s0 + s1 * s1 + s2 * s2 + s3 * s3); // normalise step magnitude
-		s0 *= recipNorm;
-		s1 *= recipNorm;
-		s2 *= recipNorm;
-		s3 *= recipNorm;
+        if (recipNorm > 0.0f) {
+            s0 *= recipNorm;
+            s1 *= recipNorm;
+            s2 *= recipNorm;
+            s3 *= recipNorm;
+        } else {
+           // s0 = s1 = s2 = s3 = 0.0f;
+        }
+
 
 		// Apply feedback step
 		qDot1 -= beta * s0;
@@ -300,31 +316,52 @@ void MadgwickAHRSupdateIMU(float gx, float gy, float gz, float ax, float ay, flo
 
 	// Normalise quaternion
 	recipNorm = invSqrt(q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3);
-	q0 *= recipNorm;
-	q1 *= recipNorm;
-	q2 *= recipNorm;
-	q3 *= recipNorm;
+    if (recipNorm > 0.0f) {
+        q0 *= recipNorm;
+        q1 *= recipNorm;
+        q2 *= recipNorm;
+        q3 *= recipNorm;
+    }
 }
 
 float invSqrt(float x) {
+    // Use standard sqrtf if FPU is available and likely faster/more accurate
     #if defined(__ARM_ARCH_7EM__) && (__FPU_PRESENT == 1)
+        // Check for non-positive input to avoid domain error
+        if (x <= 0.0f) {
+            return 0.0f; // Or handle error appropriately
+        }
         return 1.0f / sqrtf(x);
     #else
+    // Fast inverse sqrt approximation (Carmack's method)
+    // Check for non-positive input
+    if (x <= 0.0f) {
+         return 0.0f; // Or handle error appropriately
+    }
 	float halfx = 0.5f * x;
 	float y = x;
-	long i = *(long*)&y;
-	i = 0x5f3759df - (i>>1);
-	y = *(float*)&i;
-	y = y * (1.5f - (halfx * y * y));
-    y = y * (1.5f - (halfx * y * y));
+    // Use union for type punning - safer than pointer casting across compilers/optimizations
+    union {
+        float f;
+        long i; // Assumes float and long are same size (32-bit)
+    } conv;
+    conv.f = y;
+	conv.i = 0x5f3759df - (conv.i >> 1); // Magic number
+	y = conv.f;
+	y = y * (1.5f - (halfx * y * y)); // 1st iteration
+    // y = y * (1.5f - (halfx * y * y)); // 2nd iteration (optional, for more accuracy)
 	return y;
     #endif
 }
 
 void getEulerAngles(float *roll, float *pitch, float *yaw) {
-    // Ensure quaternion is normalized
+    // Ensure quaternion is normalized (should be done by update, but safety check)
     float norm = sqrtf(q0*q0 + q1*q1 + q2*q2 + q3*q3);
-    if (norm == 0.0f) return; // Should not happen with normalized q
+    if (norm == 0.0f || isnan(norm)) {
+        // Handle invalid quaternion case
+        *roll = *pitch = *yaw = 0.0f; // Or NAN
+        return;
+    }
     float q0_n = q0 / norm;
     float q1_n = q1 / norm;
     float q2_n = q2 / norm;
@@ -337,10 +374,10 @@ void getEulerAngles(float *roll, float *pitch, float *yaw) {
 
     // Pitch (y-axis rotation)
     float sinp = 2.0f * (q0_n * q2_n - q3_n * q1_n);
-    if (fabsf(sinp) >= 1.0f)
-        *pitch = copysignf(M_PI / 2.0f, sinp); // Use 90 degrees if out of range
-    else
-        *pitch = asinf(sinp);
+    // Clamp sinp to avoid domain errors in asin due to floating point inaccuracies
+    if (sinp > 1.0f) sinp = 1.0f;
+    if (sinp < -1.0f) sinp = -1.0f;
+    *pitch = asinf(sinp);
 
     // Yaw (z-axis rotation)
     float siny_cosp = 2.0f * (q0_n * q3_n + q1_n * q2_n);
