@@ -27,7 +27,7 @@ static void CCONV onSpatialData(PhidgetSpatialHandle ch, void * ctx, const doubl
 
 	dt_sec = (timestamp - ts) / 1000.0;
 	heading = heading + angularRate[2] * dt_sec;
-	print("Heading: %lf\n", heading);
+	printf("Heading: %lf\n", heading);
 
 }
 
