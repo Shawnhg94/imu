@@ -75,7 +75,8 @@ int main() {
 		}
 		else if(ch == 'g') {
 			PhidgetSpatial_getEulerAngles(spatial0, &angles);
-			printf('Heading %lf\n', angles.heading);
+			printf("get Data\n")
+			printf("Heading %lf\n", angles.heading);
 		}
 		else {
 			zeroGyro(spatial0);
