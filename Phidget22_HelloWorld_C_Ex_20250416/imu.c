@@ -17,9 +17,15 @@ static void CCONV onSpatialData(PhidgetSpatialHandle ch, void * ctx, const doubl
 	printf("----------\n");
 }
 
+void zeroGyro(PhidgetSpatialHandle ch) {
+	printf("PhidgetSpatial_zeroGyronw\n");
+	PhidgetSpatial_zeroGyro(ch);
+}
+
 int main() {
 	PhidgetGyroscopeHandle gyroscope0;
 	PhidgetSpatialHandle spatial0;
+	char ch = 0;
 
 	PhidgetGyroscope_create(&gyroscope0);
 	PhidgetSpatial_create(&spatial0);
@@ -33,7 +39,13 @@ int main() {
 	PhidgetSpatial_zeroGyro(spatial0);
 
 	//Wait until Enter has been pressed before exiting
-	getchar();
+	while(1) {
+		ch = getchar();
+		if (ch == 'e') {
+			break;
+		}
+		
+	}
 
 	Phidget_close((PhidgetHandle)gyroscope0);
 	Phidget_close((PhidgetHandle)spatial0);
