@@ -1,6 +1,9 @@
 #include <phidget22.h>
 #include <stdio.h>
 
+double ts = 0.0;
+double heading = 0.0;
+
 static void CCONV onAngularRateUpdate(PhidgetGyroscopeHandle ch, void * ctx, const double angularRate[3], double timestamp) {
 	printf("AngularRate: \t%lf  |  %lf  |  %lf\n", angularRate[0], angularRate[1], angularRate[2]);
 	printf("Timestamp: %lf\n", timestamp);
@@ -10,11 +13,22 @@ static void CCONV onAngularRateUpdate(PhidgetGyroscopeHandle ch, void * ctx, con
 }
 
 static void CCONV onSpatialData(PhidgetSpatialHandle ch, void * ctx, const double acceleration[3], const double angularRate[3], const double magneticField[3], double timestamp) {
+	double dt_sec = 0.0;
 	printf("Acceleration: \t%lf  |  %lf  |  %lf\n", acceleration[0], acceleration[1], acceleration[2]);
 	printf("AngularRate: \t%lf  |  %lf  |  %lf\n", angularRate[0], angularRate[1], angularRate[2]);
 	printf("MagneticField: \t%lf  |  %lf  |  %lf\n", magneticField[0], magneticField[1], magneticField[2]);
 	printf("Timestamp: %lf\n", timestamp);
 	printf("----------\n");
+
+	if (ts == 0.0) {
+		ts = timestamp;
+		return;
+	}
+
+	dt_sec = (timestamp - ts) / 1000.0;
+	heading = heading + angularRate[2] * dt_sec;
+	print("Heading: %lf\n", heading);
+
 }
 
 void zeroGyro(PhidgetSpatialHandle ch) {
