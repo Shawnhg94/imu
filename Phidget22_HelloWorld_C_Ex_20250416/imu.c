@@ -76,7 +76,7 @@ int main() {
 		else if(ch == 'g') {
 			PhidgetSpatial_getEulerAngles(spatial0, &angles);
 			printf("get Data\n");
-			printf("Heading %lf\n", angles.heading);
+			printf("Pitch Roll Heading: %.3f | %.3f | %.3f\n", angles.pitch, angles.roll, angles.heading);
 		}
 		else {
 			zeroGyro(spatial0);
